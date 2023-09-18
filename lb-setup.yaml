@@ -1,0 +1,43 @@
+---
+- name: Gathering facts from web servers.
+  hosts: webservers
+  gather_facts: true
+
+- name: Setup HAProxy Load Balancer.
+  hosts: lbserver
+  become: true
+
+  tasks:
+    - name: Install HAProxy software.
+      dnf:
+        name:
+          - haproxy
+          - firewalld
+        state: present
+
+    - name: Start the Firewalld packages
+      service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Add rules in Firewall service
+      firewalld:
+        service: http
+        zone: public
+        permanent: true
+        immediate: true
+        state: enabled
+
+    - name: Create the HAProxy config file.
+      template:
+        src: "haproxy.cfg.j2"
+        dest: "/etc/haproxy/haproxy.cfg"
+      notify: Restart HAProxy Server
+
+  handlers:
+    - name: Restart HAProxy Server
+      service:
+        name: "haproxy"
+        enabled: yes
+        state: restarted
