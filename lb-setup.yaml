@@ -1,10 +1,12 @@
 ---
 - name: Gathering facts from web servers.
-  hosts: webservers
+  # hosts: webservers
+  hosts: development
   gather_facts: true
 
 - name: Setup HAProxy Load Balancer.
-  hosts: lbserver
+  # hosts: lbserver
+  hosts: testing
   become: true
 
   tasks:
